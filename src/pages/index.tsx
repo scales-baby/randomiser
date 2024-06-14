@@ -1,23 +1,29 @@
-// pages/index.tsx
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
-import { Info } from "lucide-react";
 import {
   Tooltip,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { Button } from "@/components/ui/button";
+import { Check, Clipboard } from "lucide-react";
 
 export default function Home() {
+  const router = useRouter();
   const [sampleSize, setSampleSize] = useState(1);
   const [filename, setFilename] = useState("");
   const [result, setResult] = useState<string[]>([]);
   const [dateOfVote, setDateOfVote] = useState(DateTime.utc().toISODate());
   const [claimNumber, setClaimNumber] = useState(1);
   const [files, setFiles] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [shareLink, setShareLink] = useState("");
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const seed = `${dateOfVote}-claim-${claimNumber}-${sampleSize}`;
 
@@ -46,8 +52,31 @@ export default function Home() {
     }
   }, [sampleSize, filename, dateOfVote, claimNumber, seed]);
 
+  useEffect(() => {
+    // Generate the share link when the component mounts or parameters change
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams({
+        dateOfVote,
+        claimNumber: claimNumber.toString(),
+        sampleSize: sampleSize.toString(),
+        filename,
+      }).toString();
+      setShareLink(`${window.location.origin}?${params}`);
+    }
+  }, [dateOfVote, claimNumber, sampleSize, filename]);
+
+  useEffect(() => {
+    // Parse query parameters to set initial state values
+    if (router.isReady) {
+      const { dateOfVote, claimNumber, sampleSize, filename } = router.query;
+      if (dateOfVote) setDateOfVote(dateOfVote as string);
+      if (claimNumber) setClaimNumber(Number(claimNumber));
+      if (sampleSize) setSampleSize(Number(sampleSize));
+      if (filename) setFilename(filename as string);
+    }
+  }, [router.isReady]);
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Parse the input date string as UTC
     const date = new Date(e.target.value);
     const utcDate = new Date(
       Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
@@ -55,10 +84,21 @@ export default function Home() {
     setDateOfVote(DateTime.fromJSDate(utcDate).toISODate() ?? "");
   };
 
+  const filteredResults = result.filter((user) =>
+    user.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareLink).then(() => {
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    });
+  };
+
   return (
     <div className="container mx-auto p-4">
       <Card className="p-4">
-        <h1 className="text-2xl mb-4">Select Voters</h1>
+        <h1 className="text-2xl mb-4">Sample Voters</h1>
         <div className="mb-4">
           <label className="block mb-2">Date of Vote</label>
           <div className="flex items-center">
@@ -108,7 +148,7 @@ export default function Home() {
           />
         </div>
         <div className="mb-4">
-          <label className="block mb-2">Select JSON File</label>
+          <label className="block mb-2">Select Snapshot</label>
           <select
             value={filename}
             onChange={(e) => setFilename(e.target.value)}
@@ -123,12 +163,39 @@ export default function Home() {
         </div>
         {result.length > 0 && (
           <div className="mt-4">
-            <h2 className="text-xl">Selected Users:</h2>
-            <ul>
-              {result.map((user, index) => (
-                <li key={index}>{user}</li>
-              ))}
-            </ul>
+            <h2 className="text-xl">Selected Voters:</h2>
+            <Input
+              type="text"
+              placeholder="Search for your username"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="mb-4"
+            />
+            <div className="max-h-64 overflow-y-auto border p-2 rounded relative">
+              <ul>
+                {filteredResults.map((user, index) => (
+                  <li key={index}>{user}</li>
+                ))}
+              </ul>
+              <div className="absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-gray-50"></div>
+            </div>
+          </div>
+        )}
+        {shareLink && (
+          <div className="mt-4">
+            <h2 className="text-xl">Shareable Link:</h2>
+            <p className="text-sm mt-2">Click the link to copy:</p>
+            <div
+              onClick={handleCopyLink}
+              className="bg-gray-100 p-2 rounded text-sm break-all cursor-pointer flex items-center justify-between"
+            >
+              <span>{shareLink}</span>
+              {linkCopied ? (
+                <Check className="h-5 w-5 text-green-500" />
+              ) : (
+                <Clipboard className="h-5 w-5 text-gray-500" />
+              )}
+            </div>
           </div>
         )}
       </Card>
