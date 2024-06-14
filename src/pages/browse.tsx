@@ -8,6 +8,8 @@ const BrowsePage = () => {
     null
   );
 
+  // re
+
   useEffect(() => {
     const fetchFiles = async () => {
       const response = await fetch("/api/listFiles");
