@@ -1,20 +1,29 @@
 // pages/index.tsx
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 
-const filenames = ["dragon-council-snapshot-14-june-2024"]; // List of JSON files (without .json extension)
-
 export default function Home() {
   const [sampleSize, setSampleSize] = useState(1);
-  const [filename, setFilename] = useState(filenames[0]);
+  const [filename, setFilename] = useState("");
   const [result, setResult] = useState<string[]>([]);
   const [dateOfVote, setDateOfVote] = useState(DateTime.utc().toISODate());
   const [claimNumber, setClaimNumber] = useState(1);
+  const [files, setFiles] = useState<string[]>([]);
 
   const seed = `${dateOfVote}-claim-${claimNumber}-${sampleSize}`;
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      const response = await fetch("/api/listFiles");
+      const data = await response.json();
+      setFiles(data.files.map((file: string) => file.replace(".json", "")));
+      setFilename(data.files[0].replace(".json", "")); // Set default filename
+    };
+
+    fetchFiles();
+  }, []);
 
   useEffect(() => {
     const handleRandomize = async () => {
@@ -77,7 +86,7 @@ export default function Home() {
             onChange={(e) => setFilename(e.target.value)}
             className="block w-full p-2 border rounded"
           >
-            {filenames.map((file) => (
+            {files.map((file) => (
               <option key={file} value={file}>
                 {file}
               </option>
