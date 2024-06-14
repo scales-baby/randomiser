@@ -11,11 +11,13 @@ import { TooltipContent } from "@radix-ui/react-tooltip";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
-import { Check, Clipboard } from "lucide-react";
+import { Clipboard } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Home() {
   const router = useRouter();
-  const [sampleSize, setSampleSize] = useState(1);
+  const { toast } = useToast();
+  const [sampleSize, setSampleSize] = useState(500);
   const [filename, setFilename] = useState("");
   const [result, setResult] = useState<string[]>([]);
   const [dateOfVote, setDateOfVote] = useState(DateTime.utc().toISODate());
@@ -23,7 +25,6 @@ export default function Home() {
   const [files, setFiles] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [shareLink, setShareLink] = useState("");
-  const [linkCopied, setLinkCopied] = useState(false);
 
   const seed = `${dateOfVote}-claim-${claimNumber}-${sampleSize}`;
 
@@ -62,8 +63,10 @@ export default function Home() {
         filename,
       }).toString();
       setShareLink(`${window.location.origin}?${params}`);
+      // Update the URL query parameters
+      router.replace(`?${params}`, undefined, { shallow: true });
     }
-  }, [dateOfVote, claimNumber, sampleSize, filename]);
+  }, [dateOfVote, claimNumber, sampleSize, filename, router]);
 
   useEffect(() => {
     // Parse query parameters to set initial state values
@@ -90,8 +93,10 @@ export default function Home() {
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareLink).then(() => {
-      setLinkCopied(true);
-      setTimeout(() => setLinkCopied(false), 2000);
+      toast({
+        title: "Success!",
+        description: "The link has been copied to your clipboard.",
+      });
     });
   };
 
@@ -100,7 +105,7 @@ export default function Home() {
       <Card className="p-4">
         <h1 className="text-2xl mb-4">Sample Voters</h1>
         <div className="mb-4">
-          <label className="block mb-2">Date of Vote</label>
+          <label className="block mb-2">Start Date of Vote</label>
           <div className="flex items-center">
             <Input
               type="date"
@@ -177,24 +182,20 @@ export default function Home() {
                   <li key={index}>{user}</li>
                 ))}
               </ul>
-              <div className="absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-gray-50"></div>
+              <div className="absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-gray-50 pointer-events-none"></div>
             </div>
           </div>
         )}
         {shareLink && (
           <div className="mt-4">
-            <h2 className="text-xl">Shareable Link:</h2>
+            <h2 className="text-xl">Share Page</h2>
             <p className="text-sm mt-2">Click the link to copy:</p>
             <div
               onClick={handleCopyLink}
               className="bg-gray-100 p-2 rounded text-sm break-all cursor-pointer flex items-center justify-between"
             >
               <span>{shareLink}</span>
-              {linkCopied ? (
-                <Check className="h-5 w-5 text-green-500" />
-              ) : (
-                <Clipboard className="h-5 w-5 text-gray-500" />
-              )}
+              <Clipboard className="h-5 w-5 text-gray-500" />
             </div>
           </div>
         )}
