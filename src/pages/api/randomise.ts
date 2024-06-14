@@ -7,6 +7,8 @@ import path from "path";
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   const { seed, count, filename } = req.query;
 
+  console.log(seed, count, filename);
+
   if (!seed || !count || !filename) {
     res.status(400).json({ error: "Seed, count, and filename are required" });
     return;

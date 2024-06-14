@@ -3,6 +3,13 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
+import { Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { TooltipContent } from "@radix-ui/react-tooltip";
 
 export default function Home() {
   const [sampleSize, setSampleSize] = useState(1);
@@ -39,17 +46,38 @@ export default function Home() {
     }
   }, [sampleSize, filename, dateOfVote, claimNumber, seed]);
 
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Parse the input date string as UTC
+    const date = new Date(e.target.value);
+    const utcDate = new Date(
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+    );
+    setDateOfVote(DateTime.fromJSDate(utcDate).toISODate() ?? "");
+  };
+
   return (
     <div className="container mx-auto p-4">
       <Card className="p-4">
         <h1 className="text-2xl mb-4">Select Voters</h1>
         <div className="mb-4">
           <label className="block mb-2">Date of Vote</label>
-          <Input
-            type="date"
-            value={dateOfVote}
-            onChange={(e) => setDateOfVote(e.target.value)}
-          />
+          <div className="flex items-center">
+            <Input
+              type="date"
+              value={DateTime.fromISO(dateOfVote).toFormat("yyyy-MM-dd")}
+              onChange={handleDateChange}
+            />
+          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipContent>Please select the date in UTC.</TooltipContent>
+              <TooltipTrigger>
+                <p className="text-xs text-gray-500 mt-1">
+                  Please select the date in UTC.
+                </p>
+              </TooltipTrigger>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <div className="mb-4">
           <label className="block mb-2">Claim Number</label>
