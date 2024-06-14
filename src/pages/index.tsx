@@ -68,8 +68,6 @@ export default function Home() {
         filename,
       }).toString();
       setShareLink(`${window.location.origin}?${params}`);
-      // Update the URL query parameters
-      router.replace(`?${params}`, undefined, { shallow: true });
     }
   }, [dateOfVote, claimNumber, sampleSize, filename, router]);
 
@@ -82,7 +80,7 @@ export default function Home() {
       if (sampleSize) setSampleSize(Number(sampleSize));
       if (filename) setFilename(filename as string);
     }
-  }, [router.isReady]);
+  }, [router.isReady, router.query]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const date = new Date(e.target.value);
