@@ -1,7 +1,8 @@
+// pages/index.tsx
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { DateTime } from "luxon";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Tooltip,
   TooltipProvider,
@@ -13,6 +14,7 @@ import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { Clipboard } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { useDebounce } from "use-debounce";
 
 export default function Home() {
   const router = useRouter();
@@ -27,6 +29,9 @@ export default function Home() {
   const [shareLink, setShareLink] = useState("");
 
   const seed = `${dateOfVote}-claim-${claimNumber}-${sampleSize}`;
+
+  // Debounced search query
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -87,9 +92,11 @@ export default function Home() {
     setDateOfVote(DateTime.fromJSDate(utcDate).toISODate() ?? "");
   };
 
-  const filteredResults = result.filter((user) =>
-    user.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredResults = useMemo(() => {
+    return result.filter((user) =>
+      user.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+    );
+  }, [result, debouncedSearchQuery]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareLink).then(() => {
@@ -178,7 +185,7 @@ export default function Home() {
             />
             <div className="max-h-64 overflow-y-auto border p-2 rounded relative">
               <ul>
-                {filteredResults.map((user, index) => (
+                {filteredResults.map((user: any, index: any) => (
                   <li key={index}>{user}</li>
                 ))}
               </ul>
