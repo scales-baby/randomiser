@@ -33,7 +33,7 @@ export default function Home() {
   return (
     <div className="container mx-auto p-4">
       <Card className="p-4">
-        <h1 className="text-2xl mb-4">Random User Selector</h1>
+        <h1 className="text-2xl mb-4">Select Voters</h1>
         <div className="mb-4">
           <label className="block mb-2">Date of Vote</label>
           <Input
