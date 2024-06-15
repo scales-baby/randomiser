@@ -105,6 +105,16 @@ export default function Home() {
     });
   };
 
+  const handleCopyList = () => {
+    const list = JSON.stringify(filteredResults, null, 2);
+    navigator.clipboard.writeText(list).then(() => {
+      toast({
+        title: "Success!",
+        description: "The list of voters has been copied to your clipboard.",
+      });
+    });
+  };
+
   return (
     <div className="container mx-auto p-4">
       <Card className="p-4">
@@ -208,6 +218,9 @@ export default function Home() {
               </ul>
               <div className="absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-gray-50 pointer-events-none"></div>
             </div>
+            <Button onClick={handleCopyList} className="mt-2">
+              Copy Voter List
+            </Button>
           </div>
         )}
         {shareLink && (
