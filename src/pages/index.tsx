@@ -108,7 +108,26 @@ export default function Home() {
   return (
     <div className="container mx-auto p-4">
       <Card className="p-4">
-        <h1 className="text-2xl mb-4">Sample Voters</h1>
+        <h1 className="text-2xl mb-4">Supercharged DAO Voters</h1>
+        <div className="mb-4 text-sm">
+          Each batch of voters is randomly selected from the pool of all Dragon
+          Council members from a{" "}
+          <Link className="text-blue-500" href="/browse">
+            recent snapshot
+          </Link>
+          {". "}
+          <br />
+          <br />
+          <a
+            href="https://forum.scales.baby/t/supercharging-daos-distributed-and-decentralised-decision-making-based-on-statistical-methods/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500"
+          >
+            Read more
+          </a>{" "}
+          about how the Supercharged DAO works.
+        </div>
         <div className="mb-4">
           <label className="block mb-2">Start Date of Vote</label>
           <div className="flex items-center">

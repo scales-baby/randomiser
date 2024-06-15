@@ -29,7 +29,7 @@ const BrowsePage = () => {
   return (
     <div className="container mx-auto p-4">
       <Card className="p-4">
-        <h1 className="text-2xl mb-4">Browse JSON Files</h1>
+        <h1 className="text-2xl mb-4">Dragon Council Snapshots</h1>
         <ul className="mb-4">
           {files.map((file) => (
             <li key={file} className="mb-2">
