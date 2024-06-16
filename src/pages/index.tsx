@@ -31,7 +31,7 @@ export default function Home() {
   const seed = `${dateOfVote}-claim-${claimNumber}-${sampleSize}`;
 
   // Debounced search query
-  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
+  const [debouncedSearchQuery] = useDebounce(searchQuery.toLowerCase(), 300);
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -92,7 +92,7 @@ export default function Home() {
 
   const filteredResults = useMemo(() => {
     return result.filter((user) =>
-      user.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+      user.toLowerCase().includes(debouncedSearchQuery)
     );
   }, [result, debouncedSearchQuery]);
 
@@ -208,7 +208,7 @@ export default function Home() {
               placeholder="Search for your username"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="mb-4"
+              className="mb-4 border border-blue-500"
             />
             <div className="max-h-64 overflow-y-auto border p-2 rounded relative">
               <ul>
